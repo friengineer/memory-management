@@ -14,7 +14,7 @@ void * _malloc(size_t size){
 
   Block block;
 
-  block.size = size;
+  block.size = size;                     //problem here with segmentation fault when using Block* block
   block.isFree = false;
   block.prevBlock = sbrk(0);
   printf("Block size: %ld\n", (long)block.size);
@@ -33,26 +33,35 @@ void * _malloc(size_t size){
   }
 
   sbrk(sizeof(Block) + (numberOfBlocks * 4096));
-  block.nextBlock = sbrk(0);
+  block.nextBlock = sbrk(0) + block.size;
   printf("%d\n", block.nextBlock);
 
   printf("%d\n", sbrk(0));
 
-  exit(0);
-
-  // return *(void*)sbrk(numberOfBlocks * 4096);
+  printf("Here\n");
+  return sbrk(0);
 }
 
 void _free(void * ptr){
 
   if (ptr == NULL){      // check if a pointer can actually equal NULL
 
+    printf("Special here\n");
     return;
   }
+
+  printf("Here\n");
+
+  Block block = *ptr;
+  printf("%d\n", block.isFree);
 }
 
 void main(){
 
-  _malloc(0);
-  _malloc(8192);
+  void * ptr = _malloc(0);
+  printf("%d\n", ptr);
+  _free(ptr);
+  void * ptr2 = _malloc(8192);
+  printf("%d\n", ptr2);
+  _free(ptr2);
 }
