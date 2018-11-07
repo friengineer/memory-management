@@ -1,6 +1,6 @@
 #include <sys/types.h>
 
-typedef struct Blocks{
+typedef struct Blocks{                    // need struct for pages??
 
   size_t size;
   bool isFree;
