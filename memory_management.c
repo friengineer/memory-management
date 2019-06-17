@@ -48,6 +48,16 @@ void display(Block* block){                         // need function for display
   printf("Prev: %d\n\n", (int)(long)block->prevBlock);
 }
 
+void displayAll(){
+  printf("Displaying all blocks\n");
+  Block* block = head;
+
+  while (block != NULL){
+    display(block);
+    block = (Block*)block->nextBlock;
+  }
+}
+
 // allocates the specified amount of bytes in memory
 void * _malloc(size_t size){
 
@@ -60,6 +70,7 @@ void * _malloc(size_t size){
 
   // changes what the value of prevBlock is and the values stored in the previous block
   // depending on whether a block has been created or not
+
   if (tail == NULL){
 
     // head = (Block*)(long)sbrk(4096);     // trying to create block about blocks here?
@@ -74,26 +85,38 @@ void * _malloc(size_t size){
     // tail->prevBlock = NULL;
 
     head = (Block*)(long)sbrk(4096);   // make first page in heap since size is greater than 0
+    tail = head;
+
+    long pageEnd = (long)sbrk(0);
+    printf("TAIL: %d\n", tail);
+    printf("PAGE END: %d\n", pageEnd);
+
+    if (((long)tail + size + sizeof(Block)) > pageEnd){
+      printf("Not enough memory in page, allocate new page\n");
+    }
+
     head->size = size;
     head->isFree = false;
     head->nextBlock = NULL;
     head->prevBlock = NULL;
-    tail = head;
   } else{
-    printf("Block already exists\n");
-    printf("Tail address: %d\n", tail);
-    tail = tail + 1 + (tail->size / sizeof(tail));       // NEED TO GET THIS RIGHT
-    printf("Next block: %d\n", tail);
+    long pageEnd = (long)sbrk(0);
+    long memoryEnd = (long)tail + sizeof(Block) + tail->size;    // calculates the address of where the memory about to be allocated will end
+
+    if ((memoryEnd + size + sizeof(Block)) > pageEnd){
+      printf("NOT ENOUGH MEMORY IN PAGE, ALLOCATE NEW PAGE\n");
+    }
+
+    long address = (long)tail + sizeof(Block) + tail->size;
+    tail->nextBlock = (struct Block*)address;
     Block* block = tail;
-    printf("Created temporary block\n");
-    tail = (Block*)tail->nextBlock;
-    printf("Changed where tail points\n");
-    tail->size = size;                        // PROBLEM HERE
-    printf("Set new block size\n");
+    tail = (Block*)address;
+    printf("Tail address: %d\n", tail);
+    printf("Previous block address: %d\n", block);
+    // tail = (Block*)tail->nextBlock;
+    tail->size = size;                        // PROBLEM HERE WHEN TRYING TO ACCESS ADDRESS BEYOND HEAP
     tail->isFree = 0;
-    printf("Set new block freedom\n");
     tail->nextBlock = NULL;
-    printf("About to adjust previous block\n");
     tail->prevBlock = (struct Block*)block;
   }
 
@@ -130,8 +153,8 @@ void * _malloc(size_t size){
   //   tail->prevBlock = block->prevBlock;
   // }
 
-  display(head);
-  display(tail);
+  // display(head);
+  // display(tail);
 
   printf("Returning from malloc\n");
   // returns pointer for the address of the created block
@@ -145,10 +168,14 @@ void _free(void * ptr){
     printf("No size specified\n");
     return;
   }
-  // need to determine size of block first
-  Block* block = ptr - 32;
+
+  Block* block = ptr - sizeof(Block);
+  printf("Block before being freed\n");
   display(block);
-  // printf("%d\n", block.isFree)
+  block->isFree = 1;
+  printf("Block after being freed\n");
+  display(block);
+  // printf("%d\n", block.isFree);
 
   printf("Returning from free\n");
 }
@@ -167,14 +194,18 @@ void main(){
   // void * ptr = _malloc(0);
   // printf("%d\n", ptr);
   // _free(ptr);
+
   printf("Start of heap: %d\n", sbrk(0));
-  Block *blocky = _malloc(0);              // need to update block metadata?
-  Block *blocky2 = _malloc(sizeof(Block)); // 32
-  printf("First two blocks created\n");
-  Block *blocky3 = _malloc(sizeof(Block)); // 32
-  printf("%d\n", (int)(long)blocky);
-  printf("%d\n", (int)(long)blocky2);
-  printf("%d\n", (int)(long)blocky3);
+  Block *blocky = _malloc(4064);              // need to update block metadata?
+  printf("Block 1 address: %d\n", (int)(long)blocky);
+  Block *blocky2 = _malloc(32); // need to make sure when putting something bigger than 4064 that pages are added
+  printf("Block 2 address: %d\n", (int)(long)blocky2);
+  Block *blocky3 = _malloc(64);
+  printf("Block 3 address: %d\n", (int)(long)blocky3);
+  Block *blocky4 = _malloc(128);
+  printf("Block 4 address: %d\n", (int)(long)blocky4);
+  Block *blocky5 = _malloc(256);
+  printf("Block 5 address: %d\n", (int)(long)blocky5);
   _free(blocky);
   _free(blocky2);
   _free(blocky3);
@@ -186,4 +217,5 @@ void main(){
   // void * ptr3 = _malloc(200);
   // printf("%d\n", ptr3);
   // display(ptr3);
+  displayAll();
 }
