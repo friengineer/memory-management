@@ -1,4 +1,5 @@
-// #include <stddef.h>    comment this in and remove stdlib
+// comment this in and remove stdlib
+// #include <stddef.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -10,11 +11,11 @@ Block *head = NULL;
 Block *tail = NULL;
 
 // adds the required number of pages
-void addPages(long number){
+void addPages(long number) {
   long i;
   number += 1;
 
-  for (i = 0; i < number; i++){
+  for (i = 0; i < number; i++) {
     sbrk(4096);
   }
 
@@ -22,28 +23,28 @@ void addPages(long number){
 }
 
 // displays information about a block at a given address
-void display(Block* block){
-  printf("Address: %d\n", (int)(long)block);
+void display(Block* block) {
+  printf("Address: %d\n", (int) (long) block);
   printf("Size: %d\n", block->size);
   printf("Free: %d\n", block->isFree);
-  printf("Next: %d\n", (int)(long)block->nextBlock);
-  printf("Prev: %d\n\n", (int)(long)block->prevBlock);
+  printf("Next: %d\n", (int) (long) block->nextBlock);
+  printf("Prev: %d\n\n", (int) (long) block->prevBlock);
 }
 
 // displays information about all of the blocks of memory allocated in the heap
-void displayAll(){
+void displayAll() {
   printf("\nDisplaying all blocks\n\n");
   Block* block = head;
 
-  while (block != NULL){
+  while (block != NULL) {
     display(block);
-    block = (Block*)block->nextBlock;
+    block = (Block*) block->nextBlock;
   }
 }
 
 // allocates the specified amount of bytes in memory
-void * _malloc(size_t size){
-  if (size == 0){
+void * _malloc(size_t size) {
+  if (size == 0) {
     return NULL;
   }
 
@@ -51,10 +52,10 @@ void * _malloc(size_t size){
 
   // changes what the value of prevBlock is and the values stored in the previous block
   // depending on whether a block has been created or not
+  if (tail == NULL) {
 
-  if (tail == NULL){
-
-    // head = (Block*)(long)sbrk(4096);     // trying to create block about blocks here?
+    // trying to create block about blocks here?
+    // head = (Block*)(long)sbrk(4096);
     // head->size = 0;
     // head->isFree = false;
     // head->nextBlock = NULL;
@@ -65,41 +66,41 @@ void * _malloc(size_t size){
     // tail->nextBlock = NULL;
     // tail->prevBlock = NULL;
 
-    head = (Block*)(long)sbrk(4096);
+    head = (Block*) (long) sbrk(4096);
     tail = head;
 
     // gets the address of the end of the heap
-    long pageEnd = (long)sbrk(0);
+    long pageEnd = (long) sbrk(0);
 
     // adds the pages required to allocate the memory if there is not enough room on the heap
-    if (((long)tail + size + sizeof(Block)) > pageEnd){
-      addPages((((long)tail + size + sizeof(Block)) - pageEnd) / 4096);
+    if (((long) tail + size + sizeof(Block)) > pageEnd) {
+      addPages((((long) tail + size + sizeof(Block)) - pageEnd) / 4096);
     }
 
     head->size = size;
     head->isFree = false;
     head->nextBlock = NULL;
     head->prevBlock = NULL;
-  } else{
+  } else {
     // gets the address of the end of the heap
-    long pageEnd = (long)sbrk(0);
+    long pageEnd = (long) sbrk(0);
     // calculates the address of where the memory about to be allocated will end
-    long memoryEnd = (long)tail + sizeof(Block) + tail->size;
+    long memoryEnd = (long) tail + sizeof(Block) + tail->size;
 
     // adds the pages required to allocate the memory if there is not enough room on the heap
-    if ((memoryEnd + size + sizeof(Block)) > pageEnd){
+    if ((memoryEnd + size + sizeof(Block)) > pageEnd) {
       addPages(((memoryEnd + size + sizeof(Block)) - pageEnd) / 4096);
     }
 
     // calculates the address of the start of the next memory block's header
-    long address = (long)tail + sizeof(Block) + tail->size;
-    tail->nextBlock = (struct Block*)address;
+    long address = (long) tail + sizeof(Block) + tail->size;
+    tail->nextBlock = (struct Block*) address;
     Block* block = tail;
-    tail = (Block*)address;
+    tail = (Block*) address;
     tail->size = size;
     tail->isFree = 0;
     tail->nextBlock = NULL;
-    tail->prevBlock = (struct Block*)block;
+    tail->prevBlock = (struct Block*) block;
   }
 
   // if (tail == (head + 1)){
@@ -143,9 +144,9 @@ void * _malloc(size_t size){
 }
 
 // marks the memory at the given address as being free
-void _free(void * ptr){
+void _free(void * ptr) {
 
-  if (ptr == NULL){
+  if (ptr == NULL) {
     return;
   }
 
@@ -153,11 +154,12 @@ void _free(void * ptr){
   block->isFree = 1;
 }
 
-void main(){
+void main() {
   // printf("%d\n", sbrk(0));
   // exit(0);
 
-  // head = sbrk(0);  // returns beggining of the page
+  // returns beginning of the page
+  // head = sbrk(0);
   // tail = head;
   // pageEnd = head;
 
@@ -170,15 +172,16 @@ void main(){
 
   printf("Start of heap: %d\n", sbrk(0));
   Block *blocky = _malloc(57344);
-  printf("Block 1 address: %d\n", (int)(long)blocky);
+  printf("Block 1 address: %d\n", (int) (long) blocky);
   Block *blocky2 = _malloc(7428);
-  printf("Block 2 address: %d\n", (int)(long)blocky2);
+  printf("Block 2 address: %d\n", (int) (long) blocky2);
   Block *blocky3 = _malloc(64);
-  printf("Block 3 address: %d\n", (int)(long)blocky3);
+  printf("Block 3 address: %d\n", (int) (long) blocky3);
   Block *blocky4 = _malloc(128);
-  printf("Block 4 address: %d\n", (int)(long)blocky4);
+  printf("Block 4 address: %d\n", (int) (long) blocky4);
   Block *blocky5 = _malloc(256);
-  printf("Block 5 address: %d\n", (int)(long)blocky5);
+  printf("Block 5 address: %d\n", (int) (long) blocky5);
+  
   _free(blocky);
   _free(blocky2);
   _free(blocky3);

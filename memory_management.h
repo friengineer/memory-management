@@ -1,7 +1,7 @@
 #include <sys/types.h>
 
-typedef struct Blocks{                    // need struct for pages??
-
+// need struct for pages?
+typedef struct Blocks {
   size_t size;
   bool isFree;
   struct Block* nextBlock;
@@ -9,5 +9,4 @@ typedef struct Blocks{                    // need struct for pages??
 } Block;
 
 void * _malloc(size_t size);
-
 void _free(void * ptr);
