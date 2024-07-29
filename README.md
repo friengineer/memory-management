@@ -1,4 +1,8 @@
 # Memory Management Program
 A program that implements the `malloc()` and `free()` functions.
 
-To execute once compiled, run `<name of executable>` where it's the name you specified for the executable during compilation.
+To compile and execute the program run the following commands substituting in the name that you would like to give the executable.
+```shell
+$ gcc -o <name of executable> main.c
+$ ./<name of executable>
+```
